@@ -1,0 +1,21 @@
+# clickbus-mcp-unofficial
+
+Unofficial local-first MCP for personal ClickBus place search, trip prices and booking history (Brazil). Not the partner B2B API.
+
+Install:
+- npx -y clickbus-mcp-unofficial setup
+- npx -y clickbus-mcp-unofficial auth --from-header "Bearer …"  (DevTools Authorization)
+- npx -y clickbus-mcp-unofficial doctor
+
+Stdio (never set CLICKBUS_ALLOW_MUTATIONS in the snippet):
+{ "mcpServers": { "clickbus": { "command": "npx", "args": ["-y", "clickbus-mcp-unofficial"] } } }
+
+Default: read-only. Never pays.
+Charge only if CLICKBUS_ALLOW_MUTATIONS is enabled AND explicit_user_intent is true. Guest tokens cannot charge.
+Redacts street, phone, email, GPS/latlng polylines.
+
+Read: clickbus_search_places, clickbus_search_trips, clickbus_booking_history, clickbus_track_booking.
+Gated pay: clickbus_book, clickbus_cancel.
+Intent only: clickbus_logout.
+
+HTTP optional: loopback 127.0.0.1 + Origin allowlist. Tokens in ~/.clickbus-mcp/tokens.json (0600), never in git/tarball.

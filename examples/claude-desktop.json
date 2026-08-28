@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "clickbus": {
+      "command": "npx",
+      "args": ["-y", "clickbus-mcp-unofficial"]
+    }
+  }
+}
