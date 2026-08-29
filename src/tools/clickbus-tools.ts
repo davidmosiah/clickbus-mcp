@@ -21,6 +21,27 @@ import {
   handleSearchTrips,
   handleTrackBooking
 } from "../services/handlers.js";
+import type { ToolResponse } from "../types.js";
+
+type CallFn = (args: Record<string, unknown>) => Promise<ToolResponse>;
+const call =
+  <T,>(fn: (input: T) => Promise<ToolResponse>): CallFn =>
+  (args) =>
+    fn(args as T);
+
+/** Same handlers as MCP tools — CLI `call` uses this so skill-only clients hit the identical gates. */
+export const TOOL_CALLS: Record<string, CallFn> = {
+  clickbus_connection_status: call(handleConnectionStatus),
+  clickbus_capabilities: call(handleCapabilities),
+  clickbus_privacy_audit: call(handlePrivacyAudit),
+  clickbus_search_places: call(handleSearchPlaces),
+  clickbus_search_trips: call(handleSearchTrips),
+  clickbus_booking_history: call(handleBookingHistory),
+  clickbus_track_booking: call(handleTrackBooking),
+  clickbus_book: call(handleBook),
+  clickbus_cancel: call(handleCancelBooking),
+  clickbus_logout: call(handleLogout)
+};
 
 const readOnly = { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true } as const;
 const gatedWrite = { readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: true } as const;

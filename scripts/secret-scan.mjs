@@ -11,14 +11,24 @@ for (const banned of ["fixtures", ".clickbus-mcp", ".env", "tokens.json", "src"]
 }
 assert.ok(files.includes("dist"));
 assert.ok(files.includes("README.md"));
+assert.ok(files.includes("skill"), "package files must include skill/");
 assert.equal(existsSync(join(root, "src/services/handlers.ts")), true);
 const handlers = readFileSync(join(root, "src/services/handlers.ts"), "utf8");
 assert.match(handlers, /assertBookAllowed/);
 assert.doesNotMatch(handlers, /CLICKBUS_ACCESS_TOKEN\s*=\s*['"]npm_/);
 
-for (const rel of ["examples/claude-desktop.json", "examples/grok-bot.md", "README.md", "llms.txt", "SECURITY.md", "AGENTS.md"]) {
+for (const rel of [
+  "examples/claude-desktop.json",
+  "examples/grok-bot.md",
+  "README.md",
+  "llms.txt",
+  "SECURITY.md",
+  "AGENTS.md",
+  "skill/SKILL.md"
+]) {
   const text = readFileSync(join(root, rel), "utf8");
   assert.doesNotMatch(text, /CLICKBUS_ALLOW_MUTATIONS\s*=\s*true/);
 }
+assert.match(readFileSync(join(root, "skill/SKILL.md"), "utf8"), /call clickbus_/);
 
 console.log(JSON.stringify({ ok: true, suite: "secret-scan", files }, null, 2));

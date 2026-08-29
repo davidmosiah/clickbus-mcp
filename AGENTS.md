@@ -7,6 +7,8 @@ Unofficial local-first ClickBus MCP. Personal bus tickets for David / Life / Gro
 - `npm ci`
 - `npm test` (typecheck, build, smoke, mutation gate, redaction, handlers, secret-scan)
 - `npx clickbus-mcp-unofficial doctor`
+- `npx clickbus-mcp-unofficial call clickbus_capabilities --json '{}'`
+- Skill: `skill/SKILL.md` (copy into the agent's skills dir; do not duplicate the API client)
 
 ## Rules
 
