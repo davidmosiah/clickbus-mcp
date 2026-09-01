@@ -6,15 +6,19 @@ import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
 
 const expected = [
+  "clickbus_boarding_points",
   "clickbus_book",
   "clickbus_booking_history",
   "clickbus_cancel",
   "clickbus_capabilities",
   "clickbus_connection_status",
   "clickbus_logout",
+  "clickbus_price_preview",
   "clickbus_privacy_audit",
   "clickbus_search_places",
   "clickbus_search_trips",
+  "clickbus_search_trips_v5",
+  "clickbus_seat_availability",
   "clickbus_track_booking"
 ];
 

@@ -10,15 +10,19 @@ import {
   TripsInputSchema
 } from "../schemas/common.js";
 import {
+  handleBoardingPoints,
   handleBook,
   handleBookingHistory,
   handleCancelBooking,
   handleCapabilities,
   handleConnectionStatus,
   handleLogout,
+  handlePricePreview,
   handlePrivacyAudit,
   handleSearchPlaces,
   handleSearchTrips,
+  handleSearchTripsV5,
+  handleSeatAvailability,
   handleTrackBooking
 } from "../services/handlers.js";
 import type { ToolResponse } from "../types.js";
@@ -36,6 +40,10 @@ export const TOOL_CALLS: Record<string, CallFn> = {
   clickbus_privacy_audit: call(handlePrivacyAudit),
   clickbus_search_places: call(handleSearchPlaces),
   clickbus_search_trips: call(handleSearchTrips),
+  clickbus_search_trips_v5: call(handleSearchTripsV5),
+  clickbus_price_preview: call(handlePricePreview),
+  clickbus_boarding_points: call(handleBoardingPoints),
+  clickbus_seat_availability: call(handleSeatAvailability),
   clickbus_booking_history: call(handleBookingHistory),
   clickbus_track_booking: call(handleTrackBooking),
   clickbus_book: call(handleBook),
@@ -89,6 +97,50 @@ export function registerClickbusTools(server: McpServer): void {
       annotations: readOnly
     },
     async (args) => handleSearchPlaces(args)
+  );
+
+  server.registerTool(
+    "clickbus_search_trips_v5",
+    {
+      title: "Search ClickBus trips v5",
+      description: "Read-only GET /api/v5/trips (JSON 200). Does not book.",
+      inputSchema: TripsInputSchema.shape,
+      annotations: readOnly
+    },
+    async (args) => handleSearchTripsV5(args)
+  );
+
+  server.registerTool(
+    "clickbus_price_preview",
+    {
+      title: "ClickBus price/tax preview",
+      description: "Prices and installments from live GET /api/v4/trips. Dedicated preview URL 404/405.",
+      inputSchema: TripsInputSchema.shape,
+      annotations: readOnly
+    },
+    async (args) => handlePricePreview(args)
+  );
+
+  server.registerTool(
+    "clickbus_boarding_points",
+    {
+      title: "ClickBus boarding points",
+      description: "Terminals from live trip JSON. Dedicated boarding URLs 404/500.",
+      inputSchema: TripsInputSchema.shape,
+      annotations: readOnly
+    },
+    async (args) => handleBoardingPoints(args)
+  );
+
+  server.registerTool(
+    "clickbus_seat_availability",
+    {
+      title: "ClickBus seat counts",
+      description: "availableSeats/totalSeats from live trip JSON. Full seat map HTTP 500 is an honest gap.",
+      inputSchema: TripsInputSchema.shape,
+      annotations: readOnly
+    },
+    async (args) => handleSeatAvailability(args)
   );
 
   server.registerTool(

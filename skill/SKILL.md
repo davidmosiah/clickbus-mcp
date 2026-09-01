@@ -45,7 +45,7 @@ Token is a captured `Authorization` from `api.clickbus.com`, stored at `~/.click
 ## Loop
 
 1. `clickbus_connection_status` (or `doctor --json`). Expect `unofficial` and `never_pays_by_default`.
-2. `clickbus_search_places` then `clickbus_search_trips`. Show prices. Street/GPS stay redacted.
+2. `clickbus_search_places` then `clickbus_search_trips` / `clickbus_price_preview`. Fortaleza → destination: same loop, then **stop**.
 3. **Stop.** Do not call `clickbus_book` or `clickbus_cancel` unless the user clearly asked to book/cancel **this** trip. If the tool returns `USER_ACTION_REQUIRED`, report that and stop. Do not invent env flags.
 
 ## Never

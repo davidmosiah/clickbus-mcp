@@ -17,4 +17,6 @@ Personal token stays in `~/.clickbus-mcp/tokens.json` on the machine that runs t
 
 Book remains listed but returns `USER_ACTION_REQUIRED` until both gates are on **and** the user set `explicit_user_intent`.
 
+Recipe — “Fortaleza → [destino] amanhã”: `clickbus_search_places` query Fortaleza → `clickbus_search_trips` / `clickbus_price_preview` with tomorrow's date. Show price. **Stop before book.**
+
 Skill path (no MCP client): copy `skill/SKILL.md` into the Bot skills dir and use `clickbus-mcp-unofficial call …`. Same gates. Do not set mutation flags in the Bot environment.

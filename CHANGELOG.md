@@ -1,3 +1,7 @@
+## 0.1.2 - 2026-09-01
+
+`clickbus_search_trips_v5`, `clickbus_price_preview`, `clickbus_boarding_points`, `clickbus_seat_availability` from live GET /api/v4/trips JSON. Honest gaps: full seat map 500, passengers 404, payment-methods 404, orders/preview 404/405.
+
 ## 0.1.1 - 2026-08-28
 
 Skill layer ships in-package (`skill/SKILL.md`). Agents can use MCP tools **or** `call <tool> --json` on the same binary; mutation gates are identical. Default docs still do not contain a copyable mutations assignment.

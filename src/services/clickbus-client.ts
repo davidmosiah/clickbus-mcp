@@ -50,6 +50,16 @@ export class ClickbusClient {
     return this.request("GET", `${PATHS.trips}?${params.toString()}`);
   }
 
+  async searchTripsV5(input: { from: string; to: string; departure_date: string }): Promise<unknown> {
+    const params = new URLSearchParams({
+      from: input.from,
+      to: input.to,
+      departureDate: input.departure_date,
+      clientId: this.config.clientId
+    });
+    return this.request("GET", `${PATHS.tripsV5}?${params.toString()}`);
+  }
+
   async bookingHistory(): Promise<unknown> {
     return this.request("GET", PATHS.orders, { auth: true });
   }

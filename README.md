@@ -54,7 +54,7 @@ Gates are identical. Copy `skill/SKILL.md` into your agent skills dir (`~/.agent
 
 | Kind | Tools |
 | --- | --- |
-| Read · search | `clickbus_search_places`, `clickbus_search_trips` |
+| Read · search | `clickbus_search_places`, `clickbus_search_trips`, `clickbus_search_trips_v5`, `clickbus_price_preview`, `clickbus_boarding_points`, `clickbus_seat_availability` |
 | Read · account | `clickbus_booking_history`, `clickbus_track_booking` |
 | Meta | `clickbus_connection_status`, `clickbus_capabilities`, `clickbus_privacy_audit` |
 | Gated pay (mutations **and** intent) | `clickbus_book`, `clickbus_cancel` |

@@ -17,7 +17,8 @@ Default: read-only. Never pays.
 Charge only if CLICKBUS_ALLOW_MUTATIONS is enabled AND explicit_user_intent is true. Guest tokens cannot charge.
 Redacts street, phone, email, GPS/latlng polylines.
 
-Read: clickbus_search_places, clickbus_search_trips, clickbus_booking_history, clickbus_track_booking.
+Read: places, trips v4/v5, price preview, boarding points, seat counts, booking history, track.
+Fortaleza recipe: search_places Fortaleza → search_trips → price_preview → STOP before book.
 Gated pay: clickbus_book, clickbus_cancel.
 Intent only: clickbus_logout.
 

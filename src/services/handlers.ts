@@ -84,6 +84,123 @@ export async function handleSearchPlaces(
   }
 }
 
+function pickTrips(raw: unknown): unknown[] {
+  if (!raw || typeof raw !== "object") return [];
+  const record = raw as Record<string, unknown>;
+  if (Array.isArray(record.departures)) return record.departures;
+  if (Array.isArray(record.trips)) return record.trips;
+  return [];
+}
+
+function pricePreviewFromTrip(trip: Record<string, unknown>) {
+  return {
+    price: trip.price,
+    discounted_price: trip.discountedPrice ?? trip.originalPrice,
+    currency: trip.currency ?? "BRL",
+    max_installments: trip.maxInstallments,
+    duration: trip.duration,
+    available_seats: trip.availableSeats,
+    total_seats: trip.totalSeats
+  };
+}
+
+function boardingFromTrip(trip: Record<string, unknown>) {
+  const departure = trip.departure as Record<string, unknown> | undefined;
+  const arrival = trip.arrival as Record<string, unknown> | undefined;
+  const depPlace = (departure?.place ?? {}) as Record<string, unknown>;
+  const arrPlace = (arrival?.place ?? {}) as Record<string, unknown>;
+  return {
+    departure: {
+      name: depPlace.name,
+      terminal: depPlace.terminal,
+      terminal_address: depPlace.terminalAddress,
+      schedule: departure?.schedule
+    },
+    arrival: {
+      name: arrPlace.name,
+      terminal: arrPlace.terminal,
+      terminal_address: arrPlace.terminalAddress,
+      schedule: arrival?.schedule
+    }
+  };
+}
+
+export async function handleSearchTripsV5(
+  input: { from: string; to: string; departure_date: string; privacy_mode?: PrivacyMode; response_format?: ResponseFormat },
+  extra: HandlerDeps = {}
+) {
+  const { config, client } = deps(extra);
+  try {
+    const raw = await client.searchTripsV5(input);
+    const payload = applyPrivacy({ unofficial: true, trips: raw }, input.privacy_mode ?? config.privacyMode);
+    return wrap(payload, input.response_format ?? "markdown", "ClickBus trips v5", { unofficial: true, path: "/api/v5/trips" });
+  } catch (error) {
+    return gateError(error);
+  }
+}
+
+export async function handlePricePreview(
+  input: { from: string; to: string; departure_date: string; privacy_mode?: PrivacyMode; response_format?: ResponseFormat },
+  extra: HandlerDeps = {}
+) {
+  const { config, client } = deps(extra);
+  try {
+    const raw = await client.searchTrips(input);
+    const trips = pickTrips(raw).map((trip) => pricePreviewFromTrip(trip as Record<string, unknown>));
+    const payload = applyPrivacy({ unofficial: true, prices: trips }, input.privacy_mode ?? config.privacyMode);
+    return wrap(payload, input.response_format ?? "markdown", "ClickBus price preview", {
+      unofficial: true,
+      charges: false,
+      note: "POST /api/v3/orders/preview 404/405; prices come from live GET /api/v4/trips"
+    });
+  } catch (error) {
+    return gateError(error);
+  }
+}
+
+export async function handleBoardingPoints(
+  input: { from: string; to: string; departure_date: string; privacy_mode?: PrivacyMode; response_format?: ResponseFormat },
+  extra: HandlerDeps = {}
+) {
+  const { config, client } = deps(extra);
+  try {
+    const raw = await client.searchTrips(input);
+    const points = pickTrips(raw).map((trip) => boardingFromTrip(trip as Record<string, unknown>));
+    const payload = applyPrivacy({ unofficial: true, boarding: points }, input.privacy_mode ?? config.privacyMode);
+    return wrap(payload, input.response_format ?? "markdown", "ClickBus boarding points", {
+      unofficial: true,
+      note: "Dedicated boarding URLs 404/500; terminals come from live trip JSON"
+    });
+  } catch (error) {
+    return gateError(error);
+  }
+}
+
+export async function handleSeatAvailability(
+  input: { from: string; to: string; departure_date: string; privacy_mode?: PrivacyMode; response_format?: ResponseFormat },
+  extra: HandlerDeps = {}
+) {
+  const { config, client } = deps(extra);
+  try {
+    const raw = await client.searchTrips(input);
+    const seats = pickTrips(raw).map((trip) => {
+      const t = trip as Record<string, unknown>;
+      return {
+        available_seats: t.availableSeats,
+        total_seats: t.totalSeats,
+        trip_uuids: t.tripUuids
+      };
+    });
+    const payload = applyPrivacy({ unofficial: true, seats }, input.privacy_mode ?? config.privacyMode);
+    return wrap(payload, input.response_format ?? "markdown", "ClickBus seat availability", {
+      unofficial: true,
+      note: "GET /api/v4/trips/:id/seats was HTTP 500 on a fake id; counts come from live trip JSON. Full seat map is an honest gap."
+    });
+  } catch (error) {
+    return gateError(error);
+  }
+}
+
 export async function handleSearchTrips(
   input: {
     from: string;
