@@ -1,3 +1,4 @@
+import { readResponseText, ResponseBodyError } from "./response-body.js";
 import { PATHS, REQUEST_TIMEOUT_MS, WEB_USER_AGENT } from "../constants.js";
 import type { ClickbusConfig, ClickbusTokenSet, FetchLike } from "../types.js";
 import { TokenStore } from "./token-store.js";
@@ -106,9 +107,10 @@ export class ClickbusClient {
         method,
         headers,
         body: options.body ? JSON.stringify(options.body) : undefined,
+        redirect: "error",
         signal: controller.signal
       });
-      const text = await response.text();
+      const text = await readResponseText(response, controller.signal);
       let parsed: unknown = text;
       try {
         parsed = text ? JSON.parse(text) : null;
@@ -126,7 +128,7 @@ export class ClickbusClient {
     } catch (error) {
       if (error instanceof ClickbusClientError) throw error;
       throw new ClickbusClientError(
-        `ClickBus request failed: ${(error as Error).message}`,
+        error instanceof ResponseBodyError ? error.message : "ClickBus request failed",
         undefined,
         "CLICKBUS_UPSTREAM_UNAVAILABLE"
       );
@@ -147,13 +149,17 @@ export class ClickbusClient {
 export function consumerRequestUrl(apiBase: string, path: string): string {
   try {
     assertAllowedConsumerPath(path);
+    const base = new URL(apiBase);
+    if (base.pathname !== "/" || base.search || base.hash) {
+      throw new Error("PATH_NOT_ALLOWED: API base must be a bare HTTPS origin");
+    }
   } catch (error) {
     throw new ClickbusClientError((error as Error).message, undefined, "PATH_NOT_ALLOWED");
   }
   const url = apiBase.replace(/\/$/, "") + path;
   if (!isAllowedClickbusHost(url)) {
     throw new ClickbusClientError(
-      `HOST_NOT_ALLOWED: refusing unofficial ClickBus host ${apiBase}`,
+      "HOST_NOT_ALLOWED: consumer base must use an allowed HTTPS origin",
       undefined,
       "PATH_NOT_ALLOWED"
     );

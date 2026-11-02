@@ -1,4 +1,13 @@
+## Unreleased
+
+- Isolate concurrent token writes with exclusive random temporary files, restrictive permissions, and failure cleanup.
+- Reject insecure or ambiguous consumer bases and redirects; preserve the documented provider endpoints.
+- Bound optional HTTP MCP JSON bodies to 1 MiB before allocating an MCP server.
+- Refresh vulnerable dependencies within existing compatible ranges and add offline regression fixtures.
+- Apply CLI schema and size budgets before handlers, and cancel oversized or timed-out upstream response streams.
+
 ## 0.1.2 - 2026-09-01
+
 
 `clickbus_search_trips_v5`, `clickbus_price_preview`, `clickbus_boarding_points`, `clickbus_seat_availability` from live GET /api/v4/trips JSON. Honest gaps: full seat map 500, passengers 404, payment-methods 404, orders/preview 404/405.
 

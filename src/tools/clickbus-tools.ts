@@ -1,3 +1,4 @@
+import { assertToolInputBudget } from "../services/tool-input-budget.js";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import {
   BookInputSchema,
@@ -29,26 +30,30 @@ import type { ToolResponse } from "../types.js";
 
 type CallFn = (args: Record<string, unknown>) => Promise<ToolResponse>;
 const call =
-  <T,>(fn: (input: T) => Promise<ToolResponse>): CallFn =>
-  (args) =>
-    fn(args as T);
+  <T,>(schema: { safeParse(input: unknown): { success: true; data: T } | { success: false } }, fn: (input: T) => Promise<ToolResponse>): CallFn =>
+  async (args) => {
+    assertToolInputBudget(args);
+    const parsed = schema.safeParse(args);
+    if (!parsed.success) throw new Error("INVALID_INPUT: arguments do not match the tool schema");
+    return fn(parsed.data);
+  };
 
 /** Same handlers as MCP tools — CLI `call` uses this so skill-only clients hit the identical gates. */
 export const TOOL_CALLS: Record<string, CallFn> = {
-  clickbus_connection_status: call(handleConnectionStatus),
-  clickbus_capabilities: call(handleCapabilities),
-  clickbus_privacy_audit: call(handlePrivacyAudit),
-  clickbus_search_places: call(handleSearchPlaces),
-  clickbus_search_trips: call(handleSearchTrips),
-  clickbus_search_trips_v5: call(handleSearchTripsV5),
-  clickbus_price_preview: call(handlePricePreview),
-  clickbus_boarding_points: call(handleBoardingPoints),
-  clickbus_seat_availability: call(handleSeatAvailability),
-  clickbus_booking_history: call(handleBookingHistory),
-  clickbus_track_booking: call(handleTrackBooking),
-  clickbus_book: call(handleBook),
-  clickbus_cancel: call(handleCancelBooking),
-  clickbus_logout: call(handleLogout)
+  clickbus_connection_status: call(ResponseOnlyInputSchema, handleConnectionStatus),
+  clickbus_capabilities: call(ResponseOnlyInputSchema, handleCapabilities),
+  clickbus_privacy_audit: call(ResponseOnlyInputSchema, handlePrivacyAudit),
+  clickbus_search_places: call(PlacesInputSchema, handleSearchPlaces),
+  clickbus_search_trips: call(TripsInputSchema, handleSearchTrips),
+  clickbus_search_trips_v5: call(TripsInputSchema, handleSearchTripsV5),
+  clickbus_price_preview: call(TripsInputSchema, handlePricePreview),
+  clickbus_boarding_points: call(TripsInputSchema, handleBoardingPoints),
+  clickbus_seat_availability: call(TripsInputSchema, handleSeatAvailability),
+  clickbus_booking_history: call(ReadInputSchema, handleBookingHistory),
+  clickbus_track_booking: call(BookingIdInputSchema, handleTrackBooking),
+  clickbus_book: call(BookInputSchema, handleBook),
+  clickbus_cancel: call(CancelBookingInputSchema, handleCancelBooking),
+  clickbus_logout: call(LogoutInputSchema, handleLogout)
 };
 
 const readOnly = { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: true } as const;
